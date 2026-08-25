@@ -24,8 +24,7 @@ func (r *SurveyObservationRepository) Get(id uint) (model.SurveyObservation, err
 	var item model.SurveyObservation
 	if err := r.db.First(&item, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			missing := fmt.Errorf("get observation: %v", ErrNotFound)
-			return item, missing
+			return item, fmt.Errorf("get observation: %w", ErrNotFound)
 		}
 		return item, fmt.Errorf("get observation: %w", err)
 	}

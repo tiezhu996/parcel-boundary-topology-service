@@ -24,8 +24,7 @@ func (r *BoundaryProposalRepository) Get(id uint) (model.BoundaryProposal, error
 	var item model.BoundaryProposal
 	if err := r.db.First(&item, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			missing := fmt.Errorf("get proposal: %v", ErrNotFound)
-			return item, missing
+			return item, fmt.Errorf("get proposal: %w", ErrNotFound)
 		}
 		return item, fmt.Errorf("get proposal: %w", err)
 	}

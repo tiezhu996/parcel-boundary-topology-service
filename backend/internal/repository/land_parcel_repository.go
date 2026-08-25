@@ -24,8 +24,7 @@ func (r *LandParcelRepository) Get(id uint) (model.LandParcel, error) {
 	var item model.LandParcel
 	if err := r.db.First(&item, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			missing := fmt.Errorf("get land parcel: %v", ErrNotFound)
-			return item, missing
+			return item, fmt.Errorf("get land parcel: %w", ErrNotFound)
 		}
 		return item, fmt.Errorf("get land parcel: %w", err)
 	}
@@ -36,8 +35,7 @@ func (r *LandParcelRepository) GetByCode(code string) (model.LandParcel, error) 
 	var item model.LandParcel
 	if err := r.db.Where("parcel_code = ?", code).First(&item).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			missing := fmt.Errorf("get parcel by code: %v", ErrNotFound)
-			return item, missing
+			return item, fmt.Errorf("get parcel by code: %w", ErrNotFound)
 		}
 		return item, fmt.Errorf("get parcel by code: %w", err)
 	}
