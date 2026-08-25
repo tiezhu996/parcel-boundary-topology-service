@@ -129,8 +129,7 @@ func (r *UserRepository) FindByUsername(username string) (model.User, error) {
 	var user model.User
 	if err := r.db.Where("username = ? AND active = ?", username, true).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			missing := fmt.Errorf("find user by username: %v", ErrNotFound)
-			return user, missing
+			return user, fmt.Errorf("find user by username: %w", ErrNotFound)
 		}
 		return user, fmt.Errorf("find user by username: %w", err)
 	}
@@ -141,8 +140,7 @@ func (r *UserRepository) FindByID(id uint) (model.User, error) {
 	var user model.User
 	if err := r.db.Where("id = ? AND active = ?", id, true).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			missing := fmt.Errorf("find user by id: %v", ErrNotFound)
-			return user, missing
+			return user, fmt.Errorf("find user by id: %w", ErrNotFound)
 		}
 		return user, fmt.Errorf("find user by id: %w", err)
 	}

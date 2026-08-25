@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -83,7 +84,7 @@ func NewAuthService(store *repository.Store, cfg config.Config) *AuthService {
 func (s *AuthService) Login(request dto.LoginRequest) (dto.LoginResponse, error) {
 	user, err := s.store.Users.FindByUsername(request.Username)
 	if err != nil {
-		if err == repository.ErrNotFound {
+		if errors.Is(err, repository.ErrNotFound) {
 			return dto.LoginResponse{}, &AppError{CodeUnauthorized, http.StatusUnauthorized, "username or password is incorrect", err}
 		}
 		return dto.LoginResponse{}, internal("authentication lookup failed", err)
@@ -115,10 +116,10 @@ func (s *AuthService) Parse(tokenString string) (Claims, error) {
 		return Claims{}, &AppError{CodeUnauthorized, http.StatusUnauthorized, "access token claims are invalid", nil}
 	}
 	user, err := s.store.Users.FindByID(claims.UserID)
-	if err == repository.ErrNotFound {
-		return Claims{}, &AppError{CodeUnauthorized, http.StatusUnauthorized, "account is inactive", err}
-	}
 	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return Claims{}, &AppError{CodeUnauthorized, http.StatusUnauthorized, "account is inactive", err}
+		}
 		return Claims{}, internal("account lookup failed", err)
 	}
 	// Authorization follows the current account record, not role/name claims
