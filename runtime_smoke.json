@@ -1,0 +1,17 @@
+{
+  "mode": "service",
+  "start": "go run ./cmd/server",
+  "workdir": "backend",
+  "env": {
+    "PORT": "20540",
+    "DB_DRIVER": "sqlite",
+    "DB_DSN": "file:runtime-smoke?mode=memory&cache=shared",
+    "JWT_SECRET": "runtime-smoke-only-change-me"
+  },
+  "ready_url": "http://127.0.0.1:20540/healthz",
+  "ready_status": [
+    200
+  ],
+  "startup_timeout": 30,
+  "project_intro": "基于 Go 实现的地籍边界拓扑消解 Web 项目，一款后端服务，完成地块边界维护、测量观测导入、边界提案流转与拓扑冲突检测。"
+}
