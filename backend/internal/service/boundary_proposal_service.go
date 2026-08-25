@@ -26,8 +26,7 @@ func (s *CadastralService) CreateProposal(req dto.CreateProposalRequest, actor A
 	}
 	proposed, parseErr := geometry.ParsePolygon(req.ProposedGeoJSON)
 	if parseErr != nil {
-		failed := internal("reject proposed boundary geometry", parseErr)
-		return model.BoundaryProposal{}, failed
+		return model.BoundaryProposal{}, geoInvalid(parseErr)
 	}
 	for _, id := range req.ObservationIDs {
 		obs, obsErr := s.store.Observations.Get(id)

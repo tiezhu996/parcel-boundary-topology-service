@@ -21,13 +21,11 @@ func NewCadastralService(store *repository.Store) *CadastralService {
 
 func (s *CadastralService) CreateParcel(req dto.CreateParcelRequest, actor Actor) (model.LandParcel, error) {
 	if err := geometry.ValidateCoordinateSystem(req.CoordinateSystem); err != nil {
-		failed := internal("reject parcel coordinate system", err)
-		return model.LandParcel{}, failed
+		return model.LandParcel{}, geoInvalid(err)
 	}
 	polygon, err := geometry.ParsePolygon(req.BoundaryGeoJSON)
 	if err != nil {
-		failed := internal("reject parcel boundary geometry", err)
-		return model.LandParcel{}, failed
+		return model.LandParcel{}, geoInvalid(err)
 	}
 	state := req.ParcelState
 	if state == "" {
@@ -106,8 +104,7 @@ func (s *CadastralService) UpdateParcel(id uint, req dto.UpdateParcelRequest, ac
 	if req.BoundaryGeoJSON != nil {
 		polygon, parseErr := geometry.ParsePolygon(*req.BoundaryGeoJSON)
 		if parseErr != nil {
-			failed := internal("reject parcel boundary geometry", parseErr)
-			return before, failed
+			return before, geoInvalid(parseErr)
 		}
 		after.BoundaryGeoJSON = *req.BoundaryGeoJSON
 		after.AreaSquareM = polygon.Area
