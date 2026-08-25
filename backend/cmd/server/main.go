@@ -22,8 +22,8 @@ import (
 
 func newLimiters(cfg config.Config) (login, importLimit, analyze *appmw.RateLimiter) {
 	login = appmw.NewRateLimiter(cfg.LoginRateLimit, time.Minute)
-	importLimit = appmw.NewRateLimiter(cfg.LoginRateLimit, time.Minute)
-	analyze = appmw.NewRateLimiter(cfg.LoginRateLimit, time.Minute)
+	importLimit = appmw.NewRateLimiter(cfg.ImportRateLimit, time.Minute)
+	analyze = appmw.NewRateLimiter(cfg.AnalyzeRateLimit, time.Minute)
 	return login, importLimit, analyze
 }
 

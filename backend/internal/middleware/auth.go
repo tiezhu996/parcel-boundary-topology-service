@@ -35,8 +35,6 @@ type visitor struct {
 	expiresAt time.Time
 }
 
-var sharedVisitors = make(map[string]visitor)
-
 type RateLimiter struct {
 	mu        sync.Mutex
 	limit     int
@@ -46,10 +44,12 @@ type RateLimiter struct {
 }
 
 func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
-	return &RateLimiter{limit: limit, window: window, visitors: sharedVisitors, lastSweep: time.Now()}
+	return &RateLimiter{limit: limit, window: window, visitors: make(map[string]visitor), lastSweep: time.Now()}
 }
 
 func (l *RateLimiter) Allow(key string, now time.Time) (bool, time.Duration) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	if now.Sub(l.lastSweep) > l.window {
 		for k, value := range l.visitors {
 			if now.After(value.expiresAt) {
@@ -58,8 +58,6 @@ func (l *RateLimiter) Allow(key string, now time.Time) (bool, time.Duration) {
 		}
 		l.lastSweep = now
 	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
 	current := l.visitors[key]
 	if current.expiresAt.IsZero() || now.After(current.expiresAt) {
 		current = visitor{count: 0, expiresAt: now.Add(l.window)}
