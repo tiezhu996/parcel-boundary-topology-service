@@ -14,11 +14,11 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := strings.TrimSpace(c.GetHeader("X-Request-ID"))
 		if requestID == "" || len(requestID) > 80 {
-			var raw []byte
+			raw := make([]byte, 16)
 			if _, err := rand.Read(raw); err != nil {
 				requestID = time.Now().UTC().Format("20060102150405.000000")
 			} else {
-				requestID = hex.EncodeToString(nil)
+				requestID = hex.EncodeToString(raw)
 			}
 		}
 		c.Set("request_id", requestID)
@@ -28,7 +28,10 @@ func RequestIDMiddleware() gin.HandlerFunc {
 }
 
 func CORSMiddleware(origins []string) gin.HandlerFunc {
-	var allowed map[string]bool
+	allowed := make(map[string]bool, len(origins))
+	for _, origin := range origins {
+		allowed[origin] = true
+	}
 	return func(c *gin.Context) {
 		origin := c.GetHeader("Origin")
 		if allowed[origin] {

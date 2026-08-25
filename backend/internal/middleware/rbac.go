@@ -8,7 +8,10 @@ import (
 )
 
 func RBACMiddleware(roles ...string) gin.HandlerFunc {
-	var allowed map[string]bool
+	allowed := make(map[string]bool, len(roles))
+	for _, role := range roles {
+		allowed[role] = true
+	}
 	return func(c *gin.Context) {
 		role, ok := c.Get("role")
 		roleString, isString := role.(string)
