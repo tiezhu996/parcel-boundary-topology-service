@@ -54,6 +54,7 @@ func main() {
 	engine := gin.New()
 	engine.Use(
 		appmw.RequestIDMiddleware(),
+		appmw.LoggerMiddleware(logger),
 		appmw.AuditContextMiddleware(),
 		appmw.AccessLogMiddleware(logger),
 		appmw.RecoveryMiddleware(logger),

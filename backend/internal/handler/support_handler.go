@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cadastral-boundary-topology-resolution/backend/internal/dto"
+	"cadastral-boundary-topology-resolution/backend/internal/middleware"
 	"cadastral-boundary-topology-resolution/backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -91,9 +92,13 @@ func ok(c *gin.Context, status int, data any, meta any) {
 func fail(c *gin.Context, err error) {
 	var appErr *service.AppError
 	if errors.As(err, &appErr) {
+		if cause := appErr.Unwrap(); cause != nil {
+			middleware.LoggerFrom(c).Error("request_failed", "request_id", c.GetString("request_id"), "code", appErr.Code, "status", appErr.Status, "message", appErr.Message, "error", cause)
+		}
 		c.JSON(appErr.Status, gin.H{"error": gin.H{"code": appErr.Code, "message": appErr.Message, "request_id": c.GetString("request_id")}})
 		return
 	}
+	middleware.LoggerFrom(c).Error("request_failed", "request_id", c.GetString("request_id"), "error", err)
 	c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{"code": service.CodeInternal, "message": "unexpected server error", "request_id": c.GetString("request_id")}})
 }
 

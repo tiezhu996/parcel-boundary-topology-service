@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"cadastral-boundary-topology-resolution/backend/internal/dto"
@@ -54,7 +53,7 @@ func (h *CadastralHandler) TransitionObservation(c *gin.Context) {
 	}
 	item, err := h.service.TransitionObservation(id, req, actor(c))
 	if err != nil {
-		fail(c, fmt.Errorf("transition observation failed: %v", err))
+		fail(c, err)
 		return
 	}
 	ok(c, http.StatusOK, item, nil)

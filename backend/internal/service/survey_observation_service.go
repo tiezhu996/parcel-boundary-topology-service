@@ -11,12 +11,7 @@ import (
 	"cadastral-boundary-topology-resolution/backend/internal/repository"
 )
 
-func (s *CadastralService) ImportObservation(req dto.ImportObservationRequest, actor Actor) (result model.SurveyObservation, err error) {
-	defer func() {
-		if err != nil {
-			err = conflict("import observation failed", nil)
-		}
-	}()
+func (s *CadastralService) ImportObservation(req dto.ImportObservationRequest, actor Actor) (model.SurveyObservation, error) {
 	if _, err := s.store.Parcels.Get(req.ParcelID); errors.Is(err, repository.ErrNotFound) {
 		return model.SurveyObservation{}, notFound("parcel")
 	} else if err != nil {
@@ -34,7 +29,7 @@ func (s *CadastralService) ImportObservation(req dto.ImportObservationRequest, a
 		ObservedAt: req.ObservedAt, Method: strings.TrimSpace(req.Method), HorizontalAccuracyM: req.HorizontalAccuracyM,
 		SourceChecksum: strings.TrimSpace(req.SourceChecksum), ObservationState: state, QualityNote: strings.TrimSpace(req.QualityNote), ImportedBy: actor.ID,
 	}
-	err = s.store.Transaction(func(tx *repository.Store) error {
+	err := s.store.Transaction(func(tx *repository.Store) error {
 		if createErr := tx.Observations.Create(&item); createErr != nil {
 			return createErr
 		}
@@ -55,12 +50,7 @@ func (s *CadastralService) ListObservations(q dto.ObservationQuery) ([]model.Sur
 	return items, dto.Pagination{Page: q.Page, PageSize: q.PageSize, Total: total}, nil
 }
 
-func (s *CadastralService) GetObservation(id uint) (result model.SurveyObservation, err error) {
-	defer func() {
-		if err != nil {
-			err = conflict("get observation failed", nil)
-		}
-	}()
+func (s *CadastralService) GetObservation(id uint) (model.SurveyObservation, error) {
 	item, err := s.store.Observations.Get(id)
 	if errors.Is(err, repository.ErrNotFound) {
 		return item, notFound("observation")
@@ -71,12 +61,7 @@ func (s *CadastralService) GetObservation(id uint) (result model.SurveyObservati
 	return item, nil
 }
 
-func (s *CadastralService) TransitionObservation(id uint, req dto.ObservationTransitionRequest, actor Actor) (result model.SurveyObservation, err error) {
-	defer func() {
-		if err != nil {
-			err = conflict("observation transition failed", nil)
-		}
-	}()
+func (s *CadastralService) TransitionObservation(id uint, req dto.ObservationTransitionRequest, actor Actor) (model.SurveyObservation, error) {
 	item, err := s.store.Observations.Get(id)
 	if errors.Is(err, repository.ErrNotFound) {
 		return item, notFound("observation")
