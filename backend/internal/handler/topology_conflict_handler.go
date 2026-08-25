@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"cadastral-boundary-topology-resolution/backend/internal/dto"
@@ -24,7 +23,7 @@ func (h *CadastralHandler) GetConflict(c *gin.Context) {
 	}
 	item, err := h.service.GetConflict(id)
 	if err != nil {
-		fail(c, fmt.Errorf("get conflict failed: %v", err))
+		fail(c, err)
 		return
 	}
 	ok(c, http.StatusOK, item, nil)
@@ -37,7 +36,7 @@ func (h *CadastralHandler) DetectConflicts(c *gin.Context) {
 	}
 	items, err := h.service.DetectConflicts(req, c.GetHeader("Idempotency-Key"), actor(c))
 	if err != nil {
-		fail(c, fmt.Errorf("detect conflicts failed: %v", err))
+		fail(c, err)
 		return
 	}
 	ok(c, http.StatusOK, items, nil)
@@ -54,7 +53,7 @@ func (h *CadastralHandler) TransitionConflict(c *gin.Context) {
 	}
 	item, err := h.service.TransitionConflict(id, req, actor(c))
 	if err != nil {
-		fail(c, fmt.Errorf("transition conflict failed: %v", err))
+		fail(c, err)
 		return
 	}
 	ok(c, http.StatusOK, item, nil)

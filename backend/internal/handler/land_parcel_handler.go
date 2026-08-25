@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"cadastral-boundary-topology-resolution/backend/internal/dto"
@@ -49,7 +48,7 @@ func (h *CadastralHandler) GetParcel(c *gin.Context) {
 	}
 	item, err := h.service.GetParcel(id)
 	if err != nil {
-		fail(c, fmt.Errorf("get parcel failed: %v", err))
+		fail(c, err)
 		return
 	}
 	ok(c, http.StatusOK, item, nil)
@@ -66,7 +65,7 @@ func (h *CadastralHandler) UpdateParcel(c *gin.Context) {
 	}
 	item, err := h.service.UpdateParcel(id, req, actor(c))
 	if err != nil {
-		fail(c, fmt.Errorf("update parcel failed: %v", err))
+		fail(c, err)
 		return
 	}
 	ok(c, http.StatusOK, item, nil)
