@@ -59,7 +59,7 @@ func (r *TopologyConflictRepository) List(q dto.ConflictQuery) ([]model.Topology
 		db = db.Where("proposal_id = ?", *q.ProposalID)
 	}
 	if q.State != "" {
-		db = db.Where("conflict_state <> ?", q.State)
+		db = db.Where("conflict_state = ?", q.State)
 	}
 	if q.Type != "" {
 		db = db.Where("conflict_type = ?", q.Type)
@@ -76,8 +76,7 @@ func (r *TopologyConflictRepository) List(q dto.ConflictQuery) ([]model.Topology
 }
 
 func (r *TopologyConflictRepository) Transition(id uint, from, to string, resolvedBy *uint) error {
-	state := from
-	updates := map[string]any{"conflict_state": state}
+	updates := map[string]any{"conflict_state": to}
 	if resolvedBy != nil {
 		updates["resolved_by"] = resolvedBy
 	}
